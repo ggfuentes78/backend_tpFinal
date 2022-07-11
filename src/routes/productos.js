@@ -2,12 +2,15 @@ const express =require('express');
 const router = express.Router();
 const { Producto , verifBodyProducto } = require('../controllers/productosMongo');
 const { generaId } = require('../controllers/varios');
+const { validarLogin } = require('../services/auth');
+const {logger, loggeoPeticiones} = require('../services/logger');
 
 const administrador=true;
 
 
 const validaPerfil=(req, resp, next)=>{
-    if (administrador){
+    console.log('usr', req.user.admin)
+    if (req.user.admin){
         next()
     }else{
         resp.status(401).json({
@@ -16,12 +19,13 @@ const validaPerfil=(req, resp, next)=>{
     }
 }
 
-router.get('/', async (request, response)=>{
-    const productos= await Producto.getAll();
-    response.json(productos)
+router.get('/', loggeoPeticiones, validarLogin, async (request, response)=>{
+    const productos= {productos: await Producto.getAll()};
+    // response.json(productos)
+    response.render('productos', productos)
 });
 
-router.get('/:id', async (request, response)=>{
+router.get('/:id', loggeoPeticiones, validarLogin,  async (request, response)=>{
     const id = request.params.id;
     const producto= await Producto.getById(id)
     if (producto!=null){
@@ -33,7 +37,7 @@ router.get('/:id', async (request, response)=>{
     }
 });
 
-router.post('/', validaPerfil, verifBodyProducto, async (request, response)=>{
+router.post('/',  loggeoPeticiones, validarLogin, validaPerfil, verifBodyProducto, async (request, response)=>{
     const idAsignado= generaId();
     const body= request.body;
     const item= {
@@ -51,7 +55,7 @@ router.post('/', validaPerfil, verifBodyProducto, async (request, response)=>{
     producto: item});
 });
 
-router.delete('/:id', validaPerfil, async (request, response)=>{
+router.delete('/:id', validarLogin, validaPerfil, async (request, response)=>{
     const id = request.params.id;
     let producto= await Producto.getById(id);
     if (producto!=null) {
@@ -65,7 +69,7 @@ router.delete('/:id', validaPerfil, async (request, response)=>{
     }
 }); 
 
-router.put('/:id', validaPerfil, async (request, response)=>{
+router.put('/:id', validarLogin, validaPerfil, async (request, response)=>{
     const id = request.params.id;
     body = request.body;
     const itemNewData= body

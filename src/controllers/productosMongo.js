@@ -1,4 +1,5 @@
 const { ModeloProductos } = require('../models/productos');
+const {logger,  loggeoPeticiones} = require('../services/logger');
 
 
 const verifBodyProducto = async (request , response, next)=>{
@@ -25,6 +26,7 @@ class Producto{
             const respError={
                 error: err.message
             }
+            logger.error(respError);
             return respError
         }
     };
@@ -38,6 +40,7 @@ class Producto{
             const respError={
                 error: err.message
             }
+            logger.error(respError);
             return respError
         }   
     };
@@ -50,7 +53,7 @@ class Producto{
             const respError={
                 error: err.message
             }
-            console.log(respError)
+            logger.error(respError);
             return null
         }   
     };
@@ -63,6 +66,7 @@ class Producto{
             const respError={
                 error: err.message
             }
+            logger.error(respError);
             return respError
         }   
     };
@@ -76,6 +80,7 @@ class Producto{
             const respError={
                 error: err.message
             }
+            logger.error(respError);
             return respError
         }   
     };

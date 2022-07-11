@@ -1,14 +1,5 @@
-// const express =require('express');
-// const router = express.Router();
-// const path = require('path');
-// const fs = require('fs/promises');
-// const {leerArchivo, grabarDatos} = require('./persistencia');
-// const {randomIndex} = require('./varios')
-// const file='../../public/carritos.txt';
-// const ruta= path.resolve(__dirname, file);
-
 const { ModeloCarritos } = require('../models/carritos');
-
+const {logger,  loggeoPeticiones} = require('../services/logger');
 class Carrito{
     carritos;
 
@@ -18,11 +9,13 @@ class Carrito{
     
     static async save(item){ //Recibe un objeto y lo guarda en BD
         try{
-            await ModeloCarritos.create(item);
+            const carrito= await ModeloCarritos.create(item);
+            return carrito
         }catch (err){
             const respError={
                 error: err.message
             }
+            logger.error(respError)
             return respError
         }
     };
@@ -36,6 +29,7 @@ class Carrito{
             const respError={
                 error: err.message
             }
+            logger.error(respError)
             return respError
         }   
     };
@@ -53,7 +47,7 @@ class Carrito{
             const respError={
                 error: err.message
             }
-            console.log(respError)
+            logger.error(respError)
             return null
         }
     };
@@ -73,6 +67,7 @@ class Carrito{
             const respError={
                 error: err.message
             }
+            logger.error(respError)
             return respError
         }   
     };
@@ -87,12 +82,13 @@ class Carrito{
             const respError={
                 error: err.message
             }
+            logger.error(respError)
             return respError
         }   
     };
 
     static async deleteProdById(carrito, idProd) { //Elimina un producto de un carrito
-        const idxProd= Carrito.getIndex(carrito, idProd);
+        const idxProd= ModeloCarritos.getIndex(carrito, idProd);
         if (idxProd>-1){
             carrito.productos.splice(idxProd, 1);
             return carrito;
@@ -101,10 +97,20 @@ class Carrito{
         }
     }
 
-    static async deleteAll(){ // Elimina todos los objetos presentes en el archivo
-        this.carritos.length=0;
-        const carritosStringified = JSON.stringify(this.carritos, null, '\t');
-        await grabarDatos(ruta, carritosStringified)
+    static async deleteAllItems(carrito){ // Elimina todos los items del carrito
+        try{
+            await ModeloCarritos.findByIdAndUpdate(carrito, {$set:{productos:[]}});
+            logger.info('productos eliminados')
+            return({
+                msg: 'Se vacio el carrito',
+            });
+        }catch (err){
+            const respError={
+                error: err.message
+            }
+            logger.error(respError)
+            return respError
+        }; 
     };
 };
 
