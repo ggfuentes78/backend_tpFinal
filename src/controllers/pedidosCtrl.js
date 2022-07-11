@@ -135,4 +135,4 @@ class Pedido{
 };
 
 const pedido = new Pedido() 
-module.exports= { pedido }
+module.exports= pedido

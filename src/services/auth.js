@@ -96,7 +96,6 @@ const signupFunc=new LocalStrategy(strategyOptions, signup);
 const validarLogin=(req, res, next)=>{
     if (req.isAuthenticated()){
         user=req.session.passport.user;
-        console.log('usuario', user)
         next()
     }else{
         // res.redirect('/login')

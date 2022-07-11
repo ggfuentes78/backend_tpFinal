@@ -50,7 +50,7 @@ aplicacion.use(
         cookie: {
             httpOnly: false,
             secure: false,
-            maxAge: 60000
+            maxAge: 6000000
         },
         rolling: true,
         resave: true,

@@ -34,7 +34,7 @@ const logger=createLogger({
 });
 
 const loggeoPeticiones=(req, res, next)=>{
-    logger.info(`Accediendo a la ruta ${req._parsedOriginalUrl.path} - Utilizando el metodo ${req.method} - ${JSON.stringify(req._parsedOriginalUrl)}`);
+    logger.info(`Accediendo a la ruta ${req._parsedOriginalUrl.path} - Utilizando el metodo ${req.method}`);
     next()
 }
 

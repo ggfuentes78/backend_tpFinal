@@ -61,7 +61,6 @@ router.post('/logout', validarLogin, function (req, res) {
 router.get('/:id', async(req, res)=>{
     const id = req.params.id;
     const usuario = await modeloUser.findById(id);
-    console.log('usuario perfil', usuario)
     res.render('perfilUsuario', usuario);
 } )
 

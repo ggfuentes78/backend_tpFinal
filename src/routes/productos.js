@@ -9,7 +9,6 @@ const administrador=true;
 
 
 const validaPerfil=(req, resp, next)=>{
-    console.log('usr', req.user.admin)
     if (req.user.admin){
         next()
     }else{

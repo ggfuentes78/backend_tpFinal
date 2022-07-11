@@ -88,7 +88,7 @@ class Carrito{
     };
 
     static async deleteProdById(carrito, idProd) { //Elimina un producto de un carrito
-        const idxProd= ModeloCarritos.getIndex(carrito, idProd);
+        const idxProd= this.getIndex(carrito, idProd);
         if (idxProd>-1){
             carrito.productos.splice(idxProd, 1);
             return carrito;

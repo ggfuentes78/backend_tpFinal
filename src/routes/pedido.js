@@ -1,7 +1,7 @@
 const express =require('express');
 const router = express.Router();
 const { Carrito } = require('../controllers/carritosMongo');
-const { pedido } = require('../controllers/pedidosCtrl');
+const pedido = require('../controllers/pedidosCtrl');
 const { generaId } = require('../controllers/varios');
 const { Producto } = require('../controllers/productosMongo');
 const { ModeloPedidos } = require('../models/pedidos');
@@ -15,36 +15,34 @@ const msg404Producto= 'Producto no encontrado'
 
 axios.defaults.withCredentials = true;
 
-router.get('/:id/productos', validarLogin, async (request, response)=>{ 
-    const id = request.params.id;
-    const pedido = await pedido.getById(id);
-    if (pedido!= null){
-        if (pedido.productos.length>0){
-            response.json({productos: pedido.productos})
-        }else{
-            response.json({
-                msg: 'Todos los items del pedido fueron eliminados',
-                productos: pedido.productos
-            })
-        }
-    }else{
-        response.status(404).json({
-            error : msg404Pedido 
-        })
-    }
-});
+// router.get('/:id/productos', validarLogin, async (request, response)=>{ 
+    // const id = request.params.id;
+    // const order = await pedido.getById(id);
+    // console.log('pedido', order)
+    // if (order!= null){
+        // if (order.productos.length>0){
+            // response.json({productos: order.productos})
+        // }else{
+            // response.json({
+                // msg: 'Todos los items del pedido fueron eliminados',
+                // productos: order.productos
+            // })
+        // }
+    // }else{
+        // response.status(404).json({
+            // error : msg404Pedido 
+        // })
+    // }
+// });
 
 router.post('/:idCarrito', validarLogin, async(req, res)=>{
     const idCarrito = req.params.idCarrito
-    console.log('idCarrtio', idCarrito)
     try{
         const carrito = await axios.get(`${config.RUTA_APP}/api/carrito/${idCarrito}`)
 
-        console.log('carrito obtenido: ', carrito.data);
         if (carrito){
             try{
                 const nuevoPedido = await axios.post(`${config.RUTA_APP}/api/pedido`, {carrito: carrito.data, withCredentials: true })
-                console.log('nuevo Pedido...', nuevoPedido.data)
             }catch (error){
                 logger.error(error)
             }
@@ -58,7 +56,6 @@ router.post('/:idCarrito', validarLogin, async(req, res)=>{
 })
 
 router.post('/', async (request, response)=>{ // Crea Pedido - LISTO
-    console.log('entre a pedido')
     const carrito = request.body.carrito;
     const item= {
         usuario: carrito.usuario,
