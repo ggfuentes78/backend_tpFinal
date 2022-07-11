@@ -5,12 +5,11 @@ html
     body(class="bg-dark text-white")
         br
         br
-        br
-        
-        div(class="alert bg-danger text-center" style="min-height: 20vh min-width: 30vh")
+        div(class="alert bg-success text-center" style="min-height: 20vh min-width: 30vh")
+            br
+            h1 Pedido Enviado
             br
             br
-            h1 ERROR EN SIGNUP!
+            h2 Gracias por tu compra!
             br
-            br
-        script setTimeout(() => {location.href = '/api/auth/signup'}, 2000)
+        script setTimeout(() => {location.href = '/api/productos'}, 2000)

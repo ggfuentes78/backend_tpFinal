@@ -7,11 +7,13 @@ const { Producto } = require('../controllers/productosMongo');
 const { ModeloPedidos } = require('../models/pedidos');
 const {logger, loggeoPeticiones} = require('../services/logger');
 const { validarLogin } = require('../services/auth');
+const axios=require('axios');
+const config = require('../config');
 
 const msg404Pedido= 'Pedido no encontrado'
 const msg404Producto= 'Producto no encontrado'
 
-
+axios.defaults.withCredentials = true;
 
 router.get('/:id/productos', validarLogin, async (request, response)=>{ 
     const id = request.params.id;
@@ -32,7 +34,31 @@ router.get('/:id/productos', validarLogin, async (request, response)=>{
     }
 });
 
-router.post('/', validarLogin, async (request, response)=>{ // Crea Pedido - LISTO
+router.post('/:idCarrito', validarLogin, async(req, res)=>{
+    const idCarrito = req.params.idCarrito
+    console.log('idCarrtio', idCarrito)
+    try{
+        const carrito = await axios.get(`${config.RUTA_APP}/api/carrito/${idCarrito}`)
+
+        console.log('carrito obtenido: ', carrito.data);
+        if (carrito){
+            try{
+                const nuevoPedido = await axios.post(`${config.RUTA_APP}/api/pedido`, {carrito: carrito.data, withCredentials: true })
+                console.log('nuevo Pedido...', nuevoPedido.data)
+            }catch (error){
+                logger.error(error)
+            }
+            res.render('pedidoOK')   
+        }else{
+            res.status(404).json({error: 'Carrito no encontrado'})
+        }
+    }catch (error){
+        logger.error(error)
+    }
+})
+
+router.post('/', async (request, response)=>{ // Crea Pedido - LISTO
+    console.log('entre a pedido')
     const carrito = request.body.carrito;
     const item= {
         usuario: carrito.usuario,

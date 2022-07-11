@@ -40,13 +40,13 @@ router.get('/signupFailed',  (req, res)=>{
 });
 
 
-router.post('/signup',  passport.authenticate('signup', {failureRedirect:'/signupFailed', failureMessage: true}), (req, res)=>{
-    res.status(200).json({message: 'Usuario dado de alta', user: req.user.email});    
-    // res.render('login')
+router.post('/signup',  passport.authenticate('signup', {failureRedirect:'/api/auth/signupFailed', failureMessage: true}), (req, res)=>{
+    // res.status(200).json({message: 'Usuario dado de alta', user: req.user.email});    
+    res.render('login')
 });
 
 
-router.post('/logout',  function (req, res) {
+router.post('/logout', validarLogin, function (req, res) {
     logger.info('user logout...', req.user.email)
     const user = req.user.email
     req.logOut(function(err){

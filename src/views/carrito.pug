@@ -9,3 +9,5 @@ html
             include components/barraUsuario 
         h1(class="ms-2 mt-5") Carrito
             include components/productosCarrito
+        form(action=`/api/pedido/${_id}`, method="post")
+            button(type="submit" class="btn btn-primary") Realizar Pedido 

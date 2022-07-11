@@ -8,61 +8,10 @@ const routerAuthenticate = require('./auth').router;
 const validarLogin = require('../services/auth').validarLogin;
 const {logger, loggeoPeticiones} = require('../services/logger')
 
-// const validarLogin=(req, res, next)=>{
-    // if (req.isAuthenticated()){
-        // user=req.session.user;
-        // next()
-    // }else{
-        // res.redirect('/login')
-        // res.render('login')
-    // }
-// };
 
 router.get('/', validarLogin, (request, response)=>{
-    response.render('productos', productos)
-    // response.json({
-        // error: '-2, ruta no implementada'
-    // })
+    response.render('productos')
 })
-
-// router.get('/login',  (req, res)=>{
-    // res.render('login');
-// });
-// 
-// router.get('/signup',   (req, res)=>{
-    // res.render('signup');
-// });
-// 
-// router.post('/login',   passport.authenticate('login', {failureRedirect:'/loginFailed'}), (req, res)=>{
-    // res.redirect('/');
-// });
-// 
-// router.get('/loginFailed',  (req, res)=>{
-    // res.render('loginFailed');
-// });
-// 
-// router.get('/signupFailed',  (req, res)=>{
-    // console.log('req-fail: ', req)
-    // res.render('signupFailed', );
-// });
-// 
-// 
-// router.post('/signup',  passport.authenticate('signup', {failureRedirect:'/signupFailed', failureMessage: true}), (req, res)=>{
-        // res.render('login')
-// });
-// 
-// 
-// router.post('/logout',  function (req, res) {
-    // console.log('user logout...', req.user.email)
-    // const user = req.user.email
-    // req.logOut(function(err){
-        // if(err){
-            // logger.error(`error en logout - ${err}`);
-            // return next(err)
-        // }
-    // });
-    // res.render('logout', {user: user})
-// })
 
 router.use('/productos', routerProductos);
 router.use('/carrito', routerCarrito);

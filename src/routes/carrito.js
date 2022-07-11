@@ -7,18 +7,31 @@ const { ModeloCarritos } = require('../models/carritos');
 const {logger, loggeoPeticiones} = require('../services/logger');
 const { validarLogin } = require('../services/auth');
 const { render } = require('pug');
+const axios = require('axios')
 
 const msg404Carrito= 'Carrito no encontrado'
 const msg404Producto= 'Producto no encontrado'
 
 
-
-router.get('/:id', validarLogin, async (request, response)=>{ 
+router.get('/:id/detalle', validarLogin, async(request, response)=>{
     const id = request.params.id;
     const carrito = await Carrito.getById(id);
     if (carrito!= null){
         response.render('carrito', carrito)
-        // response.json(carrito)
+    }else{
+        logger.info(`Carrito id: ${id} - ${msg404Carrito}`)
+        response.status(404).json({
+            error : msg404Carrito 
+        })
+    }
+});
+
+router.get('/:id', async (request, response)=>{ 
+    const id = request.params.id;
+    const carrito = await Carrito.getById(id);
+    if (carrito!= null){
+        // response.render('carrito', carrito)
+        response.json(carrito)
     }else{
         logger.info(`Carrito id: ${id} - ${msg404Carrito}`)
         response.status(404).json({
@@ -86,7 +99,8 @@ router.post('/:id/productos', validarLogin, async(request, response)=>{
             if (idxProd == -1){
                 carrito.productos.push(producto);
                 await Carrito.updateItem(carrito);
-                response.json(carrito);
+                // response.json(carrito);
+                response.redirect('/api/productos')
             }else{
                response.status(400).json({msg: 'Producto ya existe en Carrito'})
             }

@@ -18,7 +18,7 @@ class Twilio {
     };
 
     const response = await this.twilio.messages.create(params);
-    logger.info(`Mensaje de Whatsapp enviado a ${celudestino}`)
+    logger.info(`Mensaje de Whatsapp enviado a ${celuDestino}`)
     return response;
   }
 

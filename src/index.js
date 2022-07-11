@@ -1,3 +1,4 @@
+const config= require('./config/index')
 require('dotenv').config();
 const express = require('express');
 // const { appendFile } = require('fs');
@@ -23,25 +24,22 @@ const compression=require('compression');
 //Configuracion de Yargs
 const args = yargs
     .alias({
-        p:'puerto',
         m:'modo'
     })
     .describe({
-        p: 'Indica el puerto de escucha del Servidor (8080 por defecto)',
         m: 'Indica el modo fork o cluster. (fork por defecto)'
     })
     .choices({
         m: ['cluster', 'fork']
     })
     .default({
-        puerto:8080,
         modo:'fork'
     })
     .argv;
 
 const inicioBD = initMongoDB
 const aplicacion = express();
-const puerto = process.env.PORT || args['puerto'];
+const puerto = config.PORT;
 const server = http.Server(aplicacion);
 
 
@@ -130,4 +128,4 @@ aplicacion.use(express.static(publicPath));
 
 aplicacion.use('/api', mainRouter);
 
-// aplicacion.use('/', mainRouter);
+aplicacion.use('/', mainRouter);
