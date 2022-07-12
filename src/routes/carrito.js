@@ -7,13 +7,12 @@ const { ModeloCarritos } = require('../models/carritos');
 const {logger, loggeoPeticiones} = require('../services/logger');
 const { validarLogin } = require('../services/auth');
 const { render } = require('pug');
-const axios = require('axios')
 
 const msg404Carrito= 'Carrito no encontrado'
 const msg404Producto= 'Producto no encontrado'
 
 
-router.get('/:id/detalle', validarLogin, async(request, response)=>{
+router.get('/:id/detalle', validarLogin, async(request, response)=>{ //Esta ruta es solo para el Front hace lo mismo que /:id pero renderiza el resultado de la consulta
     const id = request.params.id;
     const carrito = await Carrito.getById(id);
     if (carrito!= null){
@@ -81,10 +80,10 @@ router.delete('/:id', validarLogin, async(request, response)=>{ //Borra por carr
     const carrito= await Carrito.getById(id)
     if(carrito!=null){
         const borrarCarrito = await Carrito.deleteById(id);
-        response.json(borrarCarrito) //Devuelve array de carritos creados
+        response.json({message:'Carrito eliminado', carrito: borrarCarrito}) //Devuelve array de carritos creados
     }else{
         logger.info(`Carrito id: ${id} - ${msg404Carrito}`)
-        response.status(404).json({error : msg404Carrito})
+        response.status(404).json({message : msg404Carrito, id: id})
     }
 }); 
 
@@ -99,18 +98,18 @@ router.post('/:id/productos', validarLogin, async(request, response)=>{
             if (idxProd == -1){
                 carrito.productos.push(producto);
                 await Carrito.updateItem(carrito);
-                // response.json(carrito);
-                response.redirect('/api/productos')
+                response.json({message:'se agrego producto a carrito', carrito: carrito});
+                // response.redirect('/api/productos')
             }else{
-               response.status(400).json({msg: 'Producto ya existe en Carrito'})
+               response.status(500).json({message: 'Producto ya existe en Carrito'})
             }
         }else{
             logger.info(`Producto id: ${body.idProd} - ${msg404Producto}`);
-            response.status(404).json({error: msg404Producto})
+            response.status(404).json({message: msg404Producto, id: body.idProd})
         }
     }else{
         logger.info(`Carrito id: ${id} - ${msg404Carrito}`);
-        response.status(404).json({error: msg404Carrito})
+        response.status(404).json({message: msg404Carrito, id: id})
     }
 
 });
@@ -123,14 +122,14 @@ router.delete('/:id/productos/:id_prod', validarLogin, async(request, response)=
         const updtCarrito = await Carrito.deleteProdById(carrito, idProd);
             if (updtCarrito==null){
                 logger.info(`Producto id: ${idProd} - ${msg404Producto}`);
-                response.status(404).json({error: msg404Producto})
+                response.status(404).json({message: msg404Producto, id: idProd})
             }else{
                 Carrito.updateItem(carrito);
-                response.json(carrito);
+                response.json({message: 'Producto eliminado del carrito', carrito: carrito});
             }
     }else{
         logger.info(`Carrito id: ${id} - ${msg404Carrito}`);
-        response.status(404).json({error: msg404Carrito})
+        response.status(404).json({message: msg404Carrito, id: id})
     }
 });
 

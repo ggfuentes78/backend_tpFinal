@@ -35,7 +35,7 @@ axios.defaults.withCredentials = true;
     // }
 // });
 
-router.post('/:idCarrito', validarLogin, async(req, res)=>{
+router.post('/:idCarrito', validarLogin, async(req, res)=>{ // ruta para usar desde el Front 
     const idCarrito = req.params.idCarrito
     try{
         const carrito = await axios.get(`${config.RUTA_APP}/api/carrito/${idCarrito}`)
@@ -55,7 +55,7 @@ router.post('/:idCarrito', validarLogin, async(req, res)=>{
     }
 })
 
-router.post('/', async (request, response)=>{ // Crea Pedido - LISTO
+router.post('/', async (request, response)=>{ // Crea Pedido 
     const carrito = request.body.carrito;
     const item= {
         usuario: carrito.usuario,
@@ -68,7 +68,7 @@ router.post('/', async (request, response)=>{ // Crea Pedido - LISTO
     logger.info('Pedido creado')
     response.json({
         msg: 'Pedido creado',
-        carrito: item});
+        pedido: item});
 
 });
 

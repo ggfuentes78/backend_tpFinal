@@ -98,8 +98,9 @@ const validarLogin=(req, res, next)=>{
         user=req.session.passport.user;
         next()
     }else{
-        // res.redirect('/login')
-        res.render('login')
+        logger.info('Usuario no autenticado')
+        res.status(401).send({message: 'Usuario no autenticado'})
+        // res.render('login')
     }
 };
 

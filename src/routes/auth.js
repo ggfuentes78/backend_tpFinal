@@ -19,30 +19,31 @@ router.get('/login', loggeoPeticiones, (req, res)=>{
     res.render('login');
 });
 
-router.get('/signup',   (req, res)=>{
+router.get('/signup', loggeoPeticiones, (req, res)=>{
     res.render('signup');
 });
 
 router.post('/login', loggeoPeticiones,  passport.authenticate('login', {failureRedirect:'/api/auth/loginFailed'}), (req, res)=>{
-    res.redirect('/api/productos')
-    // res.status(200).json({message: 'login ok', user: req.user.email});
+    // res.redirect('/api/productos')
+    res.json({message: 'Login OK', user: req.user.email});
 });
 
 router.get('/loginFailed',  (req, res)=>{
     logger.info('Error en login')
-    // res.status(500).json({message: 'Error en login - Usuario o contraseña erroneo'})
-    res.render('loginFailed');
+    res.status(500).json({message: 'Error en login - Usuario o contraseña erroneo'})
+    // res.render('loginFailed');
 });
 
 router.get('/signupFailed',  (req, res)=>{
-    logger.info('Error en signup')
-    res.render('signupFailed', );
+    logger.info('Error en signup');
+    res.status(500).json({message: 'Error en registro de usuario'})
+    // res.render('signupFailed', );
 });
 
 
 router.post('/signup',  passport.authenticate('signup', {failureRedirect:'/api/auth/signupFailed', failureMessage: true}), (req, res)=>{
-    // res.status(200).json({message: 'Usuario dado de alta', user: req.user.email});    
-    res.render('login')
+    res.json({message: 'Usuario dado de alta', user: req.user.email});    
+    // res.render('login')
 });
 
 
@@ -55,13 +56,19 @@ router.post('/logout', validarLogin, function (req, res) {
             return next(err)
         }
     });
-    res.render('logout', {user: user})
+    res.json({message: 'Logout exitoso', user:user})
+    // res.render('logout', {user: user})
 });
 
 router.get('/:id', async(req, res)=>{
     const id = req.params.id;
     const usuario = await modeloUser.findById(id);
-    res.render('perfilUsuario', usuario);
+    if (usuario){
+        res.json({usuario: usuario});
+        // res.render('perfilUsuario', usuario);
+    }else{
+        res.status(404).json({message: 'Usuario inexistente', id: id})
+    }
 } )
 
 module.exports = {router};
