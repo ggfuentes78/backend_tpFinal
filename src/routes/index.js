@@ -5,7 +5,10 @@ const routerProductos = require('./productos');
 const routerPedido = require('./pedido');
 const routerCarrito = require('./carrito');
 const routerAuthenticate = require('./auth').router;
-const validarLogin = require('../services/auth').validarLogin;
+const routerImages = require('./images');
+const routerMensajes=require('./mensajes');
+const routerInfo=require('./info')
+const validarLogin = require('../controllers/auth').validarLogin;
 const {logger, loggeoPeticiones} = require('../services/logger')
 
 
@@ -17,6 +20,10 @@ router.use('/productos', routerProductos);
 router.use('/carrito', routerCarrito);
 router.use('/auth', routerAuthenticate);
 router.use('/pedido', routerPedido);
+router.use('/images', routerImages);
+router.use('/info', routerInfo)
+router.use('/mensajes', routerMensajes);
+
 
 router.use(function(req, res, next) {
     const msg404= 'Ruta no definida'

@@ -11,26 +11,36 @@ class Twilio {
   }
 
   async sendWhatsAppMessage(celuDestino, mensaje) {
-    const params = {
-      body: mensaje,
-      from: `whatsapp:${Config.TWILIO_WHATSAPP}`,
-      to: `whatsapp:${celuDestino}`,
-    };
+    try{      
+      const params = {
+        body: mensaje,
+        from: `whatsapp:${Config.TWILIO_WHATSAPP}`,
+        to: `whatsapp:${celuDestino}`,
+      };
 
-    const response = await this.twilio.messages.create(params);
-    logger.info(`Mensaje de Whatsapp enviado a ${celuDestino}`)
-    return response;
+      const response = await this.twilio.messages.create(params);
+      logger.info(`Mensaje de Whatsapp enviado a ${celuDestino}`)
+      return response;
+    }catch(err){
+      logger.error(err.stack)
+      return err.stack
+    }
   }
 
   async sendSMSMessage(celudestino, mensaje) {
-    const params = {
+    try{
+      const params = {
       body: mensaje,
       from: Config.TWILIO_CELLPHONE,
       to: celudestino,
-    };
-    const response = await this.twilio.messages.create(params);
-    logger.info(`Mensaje SMS enviado a ${celudestino}`)
-    return response;
+      };
+      const response = await this.twilio.messages.create(params);
+      logger.info(`Mensaje SMS enviado a ${celudestino}`)
+      return response;
+    }catch(err){
+      logger.error(err.stack)
+      return err.stack
+    }
   }
 }
 

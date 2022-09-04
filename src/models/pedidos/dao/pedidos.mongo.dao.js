@@ -1,17 +1,18 @@
-const config = require('../config/index');
-const { ModeloPedidos } = require('../models/pedidos/pedidos');
-const EmailService = require('../services/email');
-const {logger,  loggeoPeticiones} = require('../services/logger');
-const TwilioService = require('../services/twilio');
+const {ModeloPedidos}=require('../pedidos');
+const {logger}=require('../../../services/logger');
+// const PedidosDTO=require('../dto/pedidos');
 
+class DaoPedidos{
+    static instance;
+    pedido;
 
-class Pedido{
-    pedidos;
-
-    constructor (pedido){
-        this.pedidos = pedido;
+    static async getInstance(){
+        if(!DaoPedidos.instance){
+            logger.info('Inicializando DAO MongoDB de Pedidos');
+            DaoPedidos.instance=new DaoPedidos();
+        }
+        return DaoPedidos.instance;
     }
-    
     async save(item){ //Recibe un objeto y lo guarda en BD
         try{
             await ModeloPedidos.create(item);
@@ -38,14 +39,14 @@ class Pedido{
         }   
     };
 
-    getIndex(pedido, idProd){
-        const prodIndex = pedido.productos.findIndex(e=>e._id==idProd);
+    async getIndex(pedido, idProd){
+        const prodIndex = await pedido.productos.findIndex(e=>e._id==idProd);
         return prodIndex;
     };
 
     async getById(id){ //Recibe en id y devuelve el objeto con ese id o null si no est
         try{
-            const pedido = await ModeloPedido.findById(id)
+            const pedido = await ModeloPedidos.findById(id)
             return pedido
         }catch(err){
             const respError={
@@ -56,13 +57,6 @@ class Pedido{
         }
     };
     
-    getRandom(){
-        const min = 0; 
-        const max = this.pedidos.length;
-        const idx= randomIndex(min, max);
-        return (this.pedidos[idx]);
-    }
-
     async getAll(){ //Devuelve un array con todos los pedidos en BD 
         try{
             const items = await ModeloPedidos.find();
@@ -75,12 +69,32 @@ class Pedido{
             return respError
         }   
     };
-    
+
+    async getLastOrder(userId){ //Devuelve el ultimo pedido del usuario indicado
+        try{
+            const order= await ModeloPedidos.find({'usuario': userId}).sort({$natural:-1}).limit(1);
+            return order
+        }catch(err){
+            logger.error(JSON.stringify(err))
+            return err
+        }
+    }
+
+    async getUserOrders(userId){ //Devuelve el ultimo pedido del usuario indicado
+        try{
+            const orders= await ModeloPedidos.find({'usuario': userId})
+            return orders
+        }catch(err){
+            logger.error(JSON.stringify(err))
+            return err
+        }
+    }
+
     async deleteById(id){ // Elimina de la BD el objeto con el id buscado
         try{
             await ModeloPedidos.findByIdAndDelete(id);
             return({
-                message:'Pedido eliminado',
+                message: 'Pedido eliminado',
             })
         }catch (err){
             const respError={
@@ -100,39 +114,8 @@ class Pedido{
             return null
         }
     }
-    
-    enviaMensajes(pedido){
-        const cellAdmin = config.DESTINATARIO_CELU_ADMIN;
-        const mailAdmin = config.DESTINATARIO_MAIL_ADMIN;
-        const cellUsuario = pedido.usuario.telefono;
-        const nombreUsuario = pedido.usuario.nombre;
-        const emailUsuario = pedido.usuario.email;
-        const productos = pedido.productos;
-        let listaProductos=""
-        productos.forEach(e => {
-            listaProductos= listaProductos +`<p>${e.id} - <b>${e.nombre}</b></p>`
-        });
-        
-        const asunto =`Nuevo pedido de ${nombreUsuario} - ${emailUsuario}`
+}
 
-        const contProductos=`<H2>NUEVO PEDIDO </H2>
-        <H3>Productos:</H3>
-        ${listaProductos}`
-
-        const mensajeSMSUsuario = `${nombreUsuario}, te confirmamos que recibimos tu pedido y esta siendo procesado`;
-
-        TwilioService.sendWhatsAppMessage(cellAdmin, asunto);
-        TwilioService.sendSMSMessage(cellUsuario, mensajeSMSUsuario);
-        EmailService.sendEmail(mailAdmin, asunto, contProductos);
+module.exports=DaoPedidos
 
 
-    }
-    // static async deleteAll(){ // Elimina todos los pedidos
-        // this.pedidos.length=0;
-        // const pedidosStringified = JSON.stringify(this.carritos, null, '\t');
-        // await grabarDatos(ruta, carritosStringified)
-    // };
-};
-
-const pedido = new Pedido() 
-module.exports= pedido

@@ -1,84 +1,17 @@
-const config= require('./config/index')
-require('dotenv').config();
-const express = require('express');
-// const { appendFile } = require('fs');
-const path = require('path');
-// const fs = require('fs/promises');
-const mainRouter = require('./routes/index');
-const viewsPath= path.resolve(__dirname, './views');
-const http =require('http');
-const { initMongoDB }=require('./services/database');
-const session=require('express-session');
-const passport = require('passport');
-const loginFunc = require('./services/auth').loginFunc
-const signupFunc = require('./services/auth').signupFunc
-const cluster=require('cluster');
+const args = require('./services/args');
+const config= require('./config/index');
 const os=require('os');
-const {logger}= require('./services/logger')
+const {logger}= require('./services/logger');
+const {server}=require('./services/server');
 
-// const rutaHome = path.resolve(__dirname, './views/index.html')
-
-const yargs = require('yargs');
-const compression=require('compression');
-
-//Configuracion de Yargs
-const args = yargs
-    .alias({
-        m:'modo'
-    })
-    .describe({
-        m: 'Indica el modo fork o cluster. (fork por defecto)'
-    })
-    .choices({
-        m: ['cluster', 'fork']
-    })
-    .default({
-        modo:'fork'
-    })
-    .argv;
-
-const inicioBD = initMongoDB
-const aplicacion = express();
-const puerto = config.PORT;
-const server = http.Server(aplicacion);
-
-
-//Configuracion de Express-Session
-aplicacion.use(
-    session({
-        secret: process.env.SESSION_SECRET || 'claveSuperSecreta',
-        cookie: {
-            httpOnly: false,
-            secure: false,
-            maxAge: 6000000
-        },
-        rolling: true,
-        resave: true,
-        saveUninitialized: true,
-    }),
-);
-
-//Se indica que passport va a utilizarse en todas las rutas y se le delega el manejo de sesiones
-aplicacion.use(passport.initialize());
-aplicacion.use(passport.session());
-
-
-passport.use('login', loginFunc);
-passport.use('signup', signupFunc);
-
-//Se utiliza compression para minimizar la trafico de datos
-aplicacion.use(compression());
-
-//Se define PUG como motor de plantillas para el front
-aplicacion.set('views', viewsPath);
-aplicacion.set('view engine', 'pug');
-
-
+const puerto = config.PORT || args['puerto'];
+const modo=args['modo'];
+const persistencia=args['dao'];
 
 const numCPUs = os.cpus().length;
-const modo=args['modo']
 
-logger.info(`Inicio de Server en modo: ${modo}`);
+
+logger.info(`Inicio de Server en modo: ${modo} - ${persistencia}`);
 
 if(modo=='cluster'){
     if (cluster.isMaster){
@@ -109,23 +42,4 @@ if(modo=='cluster'){
     servidor.on('error', (err)=>{
         logger.error('Hubo un error', err)
     });
-}
-
-
-aplicacion.use(function (err, req, res, next) {
-    return res.status('500').json({
-        msg: 'Se ha producido un error inesperado',
-        error: err.message,
-    });
-});
-
-
-aplicacion.use (express.json());
-aplicacion.use(express.urlencoded({extended: true}));
-
-const publicPath = path.resolve(__dirname, '../public');
-aplicacion.use(express.static(publicPath));
-
-aplicacion.use('/api', mainRouter);
-
-aplicacion.use('/', mainRouter);
+};

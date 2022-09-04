@@ -1,0 +1,1420 @@
+openapi: 3.0.3
+info:
+  title: Proyecto Final Programacion Backend CoderHouse
+  description: Este es el Proyecto Final del curso de Programacion Backend de CoderHouse. 
+    Se trata de una aplicacion backend de e-commerce con la posibilidad de obtener los productos disponibles, generar usuarios con sus carritos de compra y gestionarlos, generar pedidos y enviar mensajes automaticos.
+  version: 1.0.0
+components:
+  schemas:
+    Productos:
+      type: object
+      required:
+        - nombre
+        - descripcion
+        - categoria
+        - precio
+      properties:
+        _id:
+          type: string
+          description: identificador unico de cada producto
+        codigo:
+          type: string
+          description: identificador de cada producto de uso interno
+        nombre:
+          type: string
+          description: nombre del producto
+        descripcion:
+          type: string
+          description: descripcion del producto
+        categoria:
+          type: string
+          description: categoria del producto
+        fotos:
+          description: fotos del producto
+          type: array
+          items:
+            type: string
+            description: id de la imagen            
+        precio:
+          type: number
+          description: precio del producto en pesos argentinos
+        stock:
+          type: number
+          description: unidades en stock del producto
+      example:
+        nombre: "Red Dead Redemption 2"
+        descripcion: "Accion en el lejano oeste"
+        foto: http://urlDeLaFotoDelProducto.jpg
+        categoria: "Juegos"
+        precio: 2500
+        stock: 84
+    Usuarios:
+      type: object
+      required:
+        - email
+        - password
+        - nombre
+        - apellido
+        - direccion
+        - edad
+        - codPais
+        - telefono
+      properties:
+        _id:
+          type: string
+          description: identificador unico del usuario
+        email:
+          type: string
+          description: email de usuario que usara para identificarse. debe tener el formato "xxxxxx@xxxx.xxx"
+        password:
+          type: string
+          description: contraseña para autenticarse en la aplicacion       
+        nombre:
+          type: string
+          description: nombre del usuario      
+        apellido: 
+          type: string
+          description: apellido del usuario         
+        direccion:
+          type: string
+          description:  direccion del usuario. Se toma como direccion por defecto en los pedidos en caso de faltar direccion de entrega  
+        edad:
+          type: number
+          description: edad del usuario         
+        codPais: 
+          type: number
+          description: codigo telefonico del pais         
+        telefono: 
+          type: number
+          description: numero de telefono del usuario         
+        foto:
+          type: string
+          description: url de la foto del usuario       
+        admin:
+          type: boolean
+          description: define si el usuario tiene perfil administrador
+        carrito:
+          type: string
+          description: id del carrito asignado al usuario
+      example:
+        email: "a@a.com"
+        password: "111"
+        nombre: "Gustavo"
+        apellido: "Fuentes"
+        direccion: "Av. Rivadavia 4319"
+        edad: 44
+        codPais: 54
+        telefono: 1154256448
+        admin: false
+    Carritos:
+      type: object
+      required:
+        - _id
+        - usuario
+        - productos
+      properties:
+        _id:
+          type: string
+          description: id del carrito
+        usuario:
+          type: string
+          description: id del usuario dueño del carrito
+        productos:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              nombre:
+                type: string
+              cantidad:
+                type: number
+              precio:
+                type: number
+          description: lista de productos que hay en el carrito
+      example:
+        _id: "630f6a3fc3f12bf3614f981b"
+        usuario: "630f6a3fc3f12bf3614f9819"
+        productos: 
+          - _id: "630f701273bd86d8c40db5d7"
+            nombre: "Red Dead Redemption 2"
+            cantidad: 10
+            precio: 2500
+    Pedidos:
+      type: object
+      required:
+        - _id
+        - usuario
+        - productos
+        - direccionEntrega
+        - estado
+      properties:
+        _id:
+          type: string
+          description: id del pedido
+        usuario:
+          type: object
+          description: datos de usuario que hizo el pedido
+        productos:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              nombre:
+                type: string
+              cantidad:
+                type: number
+              precio:
+                type: number
+          description: lista de productos del pedido
+        direccionEntrega:
+          type: string
+          description: direcicon de entrega del pedido
+        estado:
+          type: string
+          description: estado del pedido
+      example:
+        _id: "63100d958340e977a004f3a5"
+        usuario: "630f6a3fc3f12bf3614f9819"
+        productos:
+          - _id: "630f71d273bd86d8c40db5fc"
+            nombre: "Resident Evil Village"
+            cantidad: 15
+            precio: 1300
+          - _id: "630f701273bd86d8c40db5d7"
+            nombre: "Red Dead Redemption 2"
+            cantidad: 10
+            precio: 2500
+        direccionEntrega: "Av. Rivadavia 4319"
+        estado: Creado
+    Mensajes:
+      type: object
+      required:
+        - _id
+        - userId
+        - tipo
+        - mensaje
+      properties:
+        _id:
+          type: string
+          description: identificador unico del mensaje
+        userId:
+          type: string
+          description: identificador del usuario que participo en el mensaje
+        tipo:
+          type: string
+          description: indentifica el tipo de mensaje, puede ser "usuario" o sistema dependiendo de quien lo haya generado
+        mensaje:
+          type: string
+          description: texto del mensaje enviado
+      example:
+        _id: "63100c3f284cb3a9d6b2c1f0"
+        userId: "630f6a3fc3f12bf3614f9819"
+        tipo: "Sistema"
+        mensaje: "Contenido del carrito: Red Dead 4 - $2500"
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+  responses:
+    BadRequest:
+      description: Solitud invalida
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'  
+    NotFound:
+      description: El recurso solicitado no fue encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+servers:
+  - url: http://localhost:8080/api
+    description: Server Local
+  - url: https://tp-final-backend.herokuapp.com
+    description: Server de Produccion
+paths:
+  /auth/login/{email}{password}:
+    post:
+      summary: permite Loguear al usuario
+      tags:
+        - Auth
+      parameters:
+        - name: email
+          in: path
+          required: true
+          description: Email del usuario.
+          schema:
+            type : string
+        - name: password
+          in: path
+          required: true
+          description: password del usuario.
+          schema:
+            type : string                
+      responses:
+        '200': # status code
+          description: Login OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    type: string
+              example:
+                message: Login OK
+                user: a@a.com
+        '401':
+          description: Error en login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Unauthorized'
+              example:
+                message: "Error en login"
+                error: "Usuario inexistente"
+  /auth/signup:
+    post:
+      summary: permite registrar un usuario
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Usuarios'
+      responses:
+        '200': # status code
+          description: Registro OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    type: string
+              example:
+                message: Usuario dado de alta
+                user: a@a.com
+        '401':
+          description: Usuario ya existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Unauthorized'
+              example:
+                message: "Error en registro de usuario"
+                error: "Usuario ya existe"
+  /productos:
+    get:
+      summary: Devuelve todos los productos
+      tags:
+        - Productos
+      responses:
+        '200':
+          description: Todos los productos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Productos'
+    post:
+      summary: Agrega un producto a la base de datos
+      tags:
+        - Productos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Productos'
+      responses:
+        '200':
+          description: Creado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  producto:
+                    type: object
+                    properties:
+                      codigo:
+                        type: string
+                      nombre:
+                        type: string
+                      descripcion:
+                        type: string
+                      categoria:
+                        type: string
+                      precio:
+                        type: string
+                      stock:
+                        type: string
+                example:
+                  message: Se dio de alta el producto
+                  producto:
+                    codigo: 8c336137-e351-4783-9fda-81a19adc6923
+                    nombre: Resident Evil
+                    descripcion: Terror
+                    categoria: walking simulator
+                    precio: '2500'
+                    stock: '30'
+        '401':
+          description: El usuario no esta logueado/autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Unauthorized'
+              example:
+                message: "Usuario no autenticado"
+        '403':
+          description: El usuario no tiene permisos para acceder al recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Forbidden'        
+              example:
+                message: "No tiene permisos para acceder al recurso"
+  /productos/{id}:
+    get:
+      summary: Devuelve el producto con el id especificado
+      tags:
+        - Productos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del producto que queremos traer.
+          schema:
+            type : string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Productos'
+        '404':
+          description: "Producto no encontrado"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id:
+                    type: string
+              example:
+                message: "producto no encontrado"
+                id: "630f717e73bd86d8c40db5e8ee"
+    delete:
+      summary: Elimina un producto de la base de datos
+      tags:
+        - Productos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Id del producto que se quiere eliminar
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Producto eliminado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                  productos:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Productos'
+              example:
+                msg: "Producto Eliminado"
+                productos:
+                  - _id: "630f701273bd86d8c40db5d7"
+                    nombre: "Red Dead Redemption 20"
+                    descripcion: "RPG de accion"
+                    categoria: "accion"
+                    fotos: []
+                    codigo: "724005f0-1309-4335-9c6c-cc53a187d71c"
+                    precio: 2500
+                    stock: 74
+                    createdAt: "2022-08-31T14:28:34.789Z"
+                    updatedAt: "2022-09-01T23:39:35.456Z"
+                  - _id: "630f71c973bd86d8c40db5f6"
+                    nombre: "Red Dead Redemption"
+                    descripcion: "RPG de accion"
+                    categoria: "accion"
+                    fotos: []
+                    codigo: "4cc8552f-a098-43cc-a2b2-1d2240002c0d"
+                    precio: 2500
+                    stock: 54
+                    createdAt: "2022-08-31T14:35:53.424Z"
+                    updatedAt: "2022-08-31T23:08:46.975Z"
+        '401':
+          description: El usuario no esta logueado/autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Unauthorized'
+              example:
+                message: "Usuario no autenticado"
+        '403':
+          description: El usuario no tiene permisos para acceder al recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Forbidden' 
+              example:
+               message: "No tiene permisos para acceder al recurso"
+        '404':
+          description: El producto no existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/NotFound'                
+    put:
+      summary: Modifica un producto de la base de datos
+      tags:
+        - Productos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Id del producto que se quiere modificar
+          schema:
+            type: string
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Productos'
+      responses:
+        '200':
+          description: Producto eliminado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                  productos:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Productos'
+              example:
+                msg: "Producto actualizado"
+                productos:
+                  _id: "630f701273bd86d8c40db5d7"
+                  nombre: "Red Dead Redemption 20"
+                  descripcion: "RPG de accion"
+                  categoria: "accion"
+                  fotos: []
+                  codigo: "724005f0-1309-4335-9c6c-cc53a187d71c"
+                  precio: 2500
+                  stock: 74
+                  createdAt: "2022-08-31T14:28:34.789Z"
+                  updatedAt: "2022-09-01T23:39:35.456Z"
+
+        '401':
+          description: El usuario no esta logueado/autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Unauthorized'
+              example:
+                message: "Usuario no autenticado"
+        '403':
+          description: El usuario no tiene permisos para acceder al recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Forbidden' 
+              example:
+                message: "No tiene permisos para acceder al recurso"
+        '404':
+          description: El producto no existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/NotFound'                          
+
+          
+        
+  /productos/categoria/{categoria}:
+    get:
+      summary: Devuelve los productos con la categoria especificada
+      tags:
+        - Productos
+      parameters:
+        - name: categoria
+          in: path
+          required: true
+          description: Catogoria de los productos que queremos traer.
+          schema:
+            type : string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Productos'
+        '404':
+          description: No existen productos con la categoria especificada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string 
+              example:
+                message: "No se encontraron productos para la categoria"
+  /carrito:
+    get:
+      summary: Devuelve el Carrito del usuario logueado
+      tags:
+        - Carritos
+      parameters:
+        - name: user.carrito
+          in: cookie
+          required: true
+          description: ID del carrito del usuario logueado.
+          schema:
+            type : string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carritos'
+        '401':
+          description: El usuario no esta logueado/autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Unauthorized'
+              example:
+                message: "Usuario no autenticado"          
+        '404':
+          description: "Carrito no encontrado"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id:
+                    type: string
+              example:
+                message: "Carrito no encontrado"
+  /carrito/{id}:
+    get:
+      summary: Devuelve el Carrito del id indicado
+      tags:
+        - Carritos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del carrito del usuario logueado.
+          schema:
+            type : string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carritos'
+        '401':
+          description: El usuario no esta logueado/autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Unauthorized'
+              example:
+                message: "Usuario no autenticado"
+        '403':
+          description: El usuario no tiene permisos para acceder al recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Forbidden' 
+              example:
+                message: "No tiene permisos para acceder al recurso"
+        '404':
+          description: "Carrito no encontrado"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id:
+                    type: string
+              example:
+                message: "Carrito no encontrado"
+  /carrito/{id}/productos:
+    get:
+      summary: Devuelve el detalle de productos del Carrito del id indicado
+      tags:
+        - Carritos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del carrito del usuario logueado.
+          schema:
+            type : string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              example:
+                productos:
+                  - _id: "630f71d273bd86d8c40db5fc"
+                    nombre: "Resident Evil Village"
+                    cantidad: 15
+                    precio: 1300
+                  - _id: "630f701273bd86d8c40db5d7"
+                    nombre: "Red Dead Redemption 2"
+                    cantidad: 10
+                    precio: 2500
+        '401':
+          description: El usuario no esta logueado/autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Unauthorized'
+              example:
+                message: "Usuario no autenticado"
+        '403':
+          description: El usuario no tiene permisos para acceder al recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Forbidden' 
+              example:
+                message: "No tiene permisos para acceder al recurso"
+        '404':
+          description: "Carrito no encontrado"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id:
+                    type: string
+              example:
+                message: "Carrito no encontrado"
+    post:
+      summary: Agrega productos al Carrito indicado
+      tags:
+        - Carritos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del carrito del usuario logueado.
+          schema:
+            type : string
+          example: "630f6a3fc3f12bf3614f981b"
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  idProd:
+                    type: string
+                  cantidad: 
+                    type: number
+              example:
+                id: "630f701273bd86d8c40db5d7"    
+                cantidad: 3
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: 
+                    type: string
+                  carrito:
+                    $ref: '#/components/schemas/Carritos'
+                example:
+                  message: Se agrego producto al carrito
+                  carrito:
+                    _id: 630f6a3fc3f12bf3614f981b
+                    usuario: 630f6a3fc3f12bf3614f9819
+                    productos:
+                      - _id: 630f701273bd86d8c40db5d7
+                        nombre: Red Dead Redemption 20
+                        cantidad: 21
+                        precio: 2500
+                    createdAt: '2022-08-31T14:03:43.349Z'
+                    updatedAt: '2022-09-03T05:07:36.982Z'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/BadRequest'
+              example:
+                message: 'Debe indicar un Id de Producto y cantidad para actualizar el carrito'
+        '401':
+          description: El usuario no esta logueado/autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Unauthorized'
+              example:
+                message: "Usuario no autenticado"
+        '403':
+          description: El usuario no tiene permisos para acceder al recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Forbidden' 
+              example:
+                message: "No tiene permisos para acceder al recurso"
+        '404':
+          description: "Carrito no encontrado"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id:
+                    type: string
+              example:
+                message: "Carrito no encontrado"
+  /carrito/productos:
+    post:
+      summary: Agrega productos al Carrito del usuario logueado
+      tags:
+        - Carritos
+      parameters:
+        - name: user.carrito
+          in: cookie
+          required: true
+          description: ID del carrito del usuario logueado.
+          schema:
+            type : string
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: string
+                  cantidad: 
+                    type: number
+              example:
+                id: "630f701273bd86d8c40db5d7"    
+                cantidad: 3
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: 
+                    type: string
+                  carrito:
+                    $ref: '#/components/schemas/Carritos'
+                example:
+                  message: Se agrego producto al carrito
+                  carrito:
+                    _id: 630f6a3fc3f12bf3614f981b
+                    usuario: 630f6a3fc3f12bf3614f9819
+                    productos:
+                      - _id: 630f701273bd86d8c40db5d7
+                        nombre: Red Dead Redemption 20
+                        cantidad: 21
+                        precio: 2500
+                    createdAt: '2022-08-31T14:03:43.349Z'
+                    updatedAt: '2022-09-03T05:07:36.982Z'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/BadRequest'
+              example:
+                message: 'Debe indicar un Id de Producto y cantidad para actualizar el carrito'
+        '401':
+          description: El usuario no esta logueado/autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Unauthorized'
+              example:
+                message: "Usuario no autenticado"          
+        '404':
+          description: "Carrito no encontrado"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id:
+                    type: string
+              example:
+                message: "Carrito no encontrado"
+    put:
+      summary: decrementa la cantidad del productos al Carrito del usuario logueado
+      tags:
+        - Carritos
+      parameters:
+        - name: user.carrito
+          in: cookie
+          required: true
+          description: ID del carrito del usuario logueado.
+          schema:
+            type : string
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: string
+                  cantidad: 
+                    type: number
+              example:
+                id: "630f701273bd86d8c40db5d7"    
+                cantidad: 2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: 
+                    type: string
+                  carrito:
+                    $ref: '#/components/schemas/Carritos'
+                example:
+                  message: 'Se actualizo el carrito'
+                  carrito:
+                    _id: 630f6a3fc3f12bf3614f981b
+                    usuario: 630f6a3fc3f12bf3614f9819
+                    productos:
+                      - _id: 630f701273bd86d8c40db5d7
+                        nombre: Red Dead Redemption 20
+                        cantidad: 21
+                        precio: 2500
+                    createdAt: '2022-08-31T14:03:43.349Z'
+                    updatedAt: '2022-09-03T05:07:36.982Z'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/BadRequest'
+              example:
+                message: 'No hay tanta cantidad en el carrito'
+        '401':
+          description: El usuario no esta logueado/autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Unauthorized'
+              example:
+                message: "Usuario no autenticado"          
+        '404':
+          description: "Producto no encontrado"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id:
+                    type: string
+              example:
+                message: "Producto no se encuentra en el carrito"
+                id: "630f6a3fc3f12bf3614fcd1b"
+  /carrito/productos/{id_prod}:
+    delete:
+      summary: Elimina un producto del carrito
+      tags:
+        - Carritos
+      parameters:
+        - name: user.carrito
+          in: cookie
+          required: true
+          description: ID del carrito
+          schema:
+            type : string
+        - name: id_prod
+          in: path
+          required: true
+          description: ID del producto a eliminar del carrito
+          schema:
+            type : string        
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: 
+                    type: string
+                  carrito:
+                    $ref: '#/components/schemas/Carritos'
+                example:
+                  message: 'Producto eliminado del carrito'
+                  carrito:
+                    _id: 630f6a3fc3f12bf3614f981b
+                    usuario: 630f6a3fc3f12bf3614f9819
+                    productos:
+                      - _id: 630f701273bd86d8c40db5d7
+                        nombre: Red Dead Redemption 20
+                        cantidad: 21
+                        precio: 2500
+                    createdAt: '2022-08-31T14:03:43.349Z'
+                    updatedAt: '2022-09-03T05:07:36.982Z'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/BadRequest'
+              example:
+                message: 'Debe indicar un Id de Producto para eliminar'
+        '401':
+          description: El usuario no esta logueado/autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Unauthorized'
+              example:
+                message: "Usuario no autenticado"          
+        '404':
+          description: "Carrito no encontrado"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id:
+                    type: string
+              example:
+                message: "Carrito no encontrado"
+                id: "630f6a3fc3f12bf3614fcd1b"
+  /carrito/{id}/productos/{id_prod}:
+    delete:
+      summary: Elimina un producto del carrito indicado
+      tags:
+        - Carritos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del carrito
+          schema:
+            type : string
+        - name: id_prod
+          in: path
+          required: true
+          description: ID del producto a eliminar del carrito
+          schema:
+            type : string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: 
+                    type: string
+                  carrito:
+                    $ref: '#/components/schemas/Carritos'
+                example:
+                  message: 'Producto eliminado del carrito'
+                  carrito:
+                    _id: 630f6a3fc3f12bf3614f981b
+                    usuario: 630f6a3fc3f12bf3614f9819
+                    productos:
+                      - _id: 630f701273bd86d8c40db5d7
+                        nombre: Red Dead Redemption 20
+                        cantidad: 21
+                        precio: 2500
+                    createdAt: '2022-08-31T14:03:43.349Z'
+                    updatedAt: '2022-09-03T05:07:36.982Z'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/BadRequest'
+              example:
+                message: 'Debe indicar un Id de Producto para eliminar'
+        '401':
+          description: El usuario no esta logueado/autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Unauthorized'
+              example:
+                message: "Usuario no autenticado"
+        '403':
+          description: El usuario no tiene permisos para acceder al recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Forbidden' 
+              example:
+                message: "No tiene permisos para acceder al recurso"
+        '404':
+          description: "Producto no encontrado"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id:
+                    type: string
+              example:
+                message: "Producto no se encuentra en el carrito"
+                id: "630f6a3fc3f12bf3614fcd1b"      
+  /pedido:
+    get:
+      summary: devuelve todas las ordenes
+      tags:
+        - Pedidos
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  pedido:
+                    $ref: '#/components/schemas/Pedidos'
+                example:
+                  - estado: Creado
+                    _id: 630f72e973bd86d8c40db62b
+                    usuario: 630f6a3fc3f12bf3614f9819
+                    productos:
+                      - _id: 630f701273bd86d8c40db5d7
+                        cantidad: 3
+                      - _id: 630f71c973bd86d8c40db5f6
+                        cantidad: 2
+                    createdAt: '2022-08-31T14:40:41.520Z'
+                    updatedAt: '2022-08-31T14:40:41.520Z'
+                  - estado: Creado
+                    _id: 630f8a82f4e745bf9bce2d28
+                    usuario: 630f6a3fc3f12bf3614f9819
+                    productos:
+                      - _id: 630f71c973bd86d8c40db5f6
+                        cantidad: 2
+                        precio: 2500
+                    createdAt: '2022-08-31T16:21:22.633Z'
+                    updatedAt: '2022-08-31T16:21:22.633Z'
+        '401':
+          description: El usuario no esta logueado/autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Unauthorized'
+              example:
+                message: "Usuario no autenticado"
+        '403':
+          description: El usuario no tiene permisos para acceder al recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Forbidden' 
+              example:
+                message: "No tiene permisos para acceder al recurso"
+    post:
+      summary: Crea un pedido a partir del carrito del usuario
+      tags:
+        - Pedidos
+      parameters:
+        - name: user.carrito
+          in: cookie
+          required: true
+          description: ID del carrito del usuario logueado.
+          schema:
+            type : string
+          example: "630f6a3fc3f12bf3614f981b"
+      requestBody:
+          content:
+            application/json:
+              schema:
+                properties:
+                  direccion:
+                    type: string
+                example:
+                  direccion: "Av. Rivadaiva 4319"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: 
+                    type: string
+                  carrito:
+                    $ref: '#/components/schemas/Pedidos'
+                example:
+                  message: Pedido creado
+                  pedido:
+                    usuario: 630f6a3fc3f12bf3614f9819
+                    productos:
+                      - _id: 630f701273bd86d8c40db5d7
+                        nombre: Red Dead Redemption 20
+                        cantidad: 22
+                        precio: 2500
+                      - _id: 630f71d273bd86d8c40db5fc
+                        nombre: Red Dead 4
+                        cantidad: 5
+                        precio: 2500
+                    direccionEntrega: 'Av. Rivadavia 4319'
+                    estado: Creado
+        '401':
+          description: El usuario no esta logueado/autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Unauthorized'
+              example:
+                message: "Usuario no autenticado"
+        '400':
+          description: "Carrito vacio"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id:
+                    type: string
+              example:
+                message: "No se puede completar el pedido. El carrito esta vacio"
+  /pedido/myorders:
+    get:
+      summary: devuelve todas las ordenes del usuario
+      tags:
+        - Pedidos
+      parameters:
+        - name: user._id
+          in: cookie
+          required: true
+          description: ID del Usuario
+          schema:
+            type : string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  pedido:
+                    $ref: '#/components/schemas/Pedidos'
+                example:
+                  - _id: 630f72e973bd86d8c40db62b
+                    usuario: 630f6a3fc3f12bf3614f9819
+                    productos:
+                      - _id: 630f701273bd86d8c40db5d7
+                        nombre: 'Resident Evil'
+                        cantidad: 3
+                        precio: 1500
+                      - _id: 630f71c973bd86d8c40db5f6
+                        nombre: 'GTA'
+                        cantidad: 2
+                        precio: 2500
+                    direccionEntrega: "Av. San Juan 3115"
+                    estado: Creado
+                    createdAt: '2022-08-31T14:40:41.520Z'
+                    updatedAt: '2022-08-31T14:40:41.520Z'
+                  - _id: 630f8a82f4e745bf9bce2d28
+                    usuario: 630f6a3fc3f12bf3614f9819
+                    productos:
+                      - _id: 630f71c973bd86d8c40db5f6
+                        nombre: "GTA"
+                        cantidad: 2
+                        precio: 2500
+                    direccionEntrega: "Av. Rivadavia 4319"
+                    estado: Creado
+                    createdAt: '2022-08-31T16:21:22.633Z'
+                    updatedAt: '2022-08-31T16:21:22.633Z'
+        '401':
+          description: El usuario no esta logueado/autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Unauthorized'
+              example:
+                message: "Usuario no autenticado"
+  /pedido/last:
+    get:
+      summary: devuelve la ultima orden del usuario
+      tags:
+        - Pedidos
+      parameters:
+        - name: user._id
+          in: cookie
+          required: true
+          description: ID del Usuario
+          schema:
+            type : string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  pedido:
+                    $ref: '#/components/schemas/Pedidos'
+                example:
+                  _id: 630f8a82f4e745bf9bce2d28
+                  usuario: 630f6a3fc3f12bf3614f9819
+                  productos:
+                    - _id: 630f71c973bd86d8c40db5f6
+                      nombre: "GTA"
+                      cantidad: 2
+                      precio: 2500
+                  direccionEntrega: "Av. Rivadavia 4319"
+                  estado: Creado
+                  createdAt: '2022-08-31T16:21:22.633Z'
+                  updatedAt: '2022-08-31T16:21:22.633Z'
+        '401':
+          description: El usuario no esta logueado/autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Unauthorized'
+              example:
+                message: "Usuario no autenticado"
+  /pedido/{id}/productos:
+    get:
+      summary: Devuelve el detalle de productos del Pedido con el id indicado
+      tags:
+        - Pedidos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del Pedido
+          schema:
+            type : string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              example:
+                productos:
+                  - _id: 630f71c973bd86d8c40db5f6
+                    nombre: "GTA"
+                    cantidad: 2
+                    precio: 2500
+                  - _id: 630f701273bd86d8c40db5d7
+                    nombre: 'Resident Evil'
+                    cantidad: 3
+                    precio: 1500                  
+        '401':
+          description: El usuario no esta logueado/autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Unauthorized'
+              example:
+                message: "Usuario no autenticado"
+        '403':
+          description: El usuario no tiene permisos para acceder al recurso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Forbidden' 
+              example:
+                message: "No tiene permisos para acceder al recurso"
+        '404':
+          description: "Pedido no encontrado"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id:
+                    type: string
+              example:
+                message: "Pedido encontrado"
+
+
+                
+
+      
+
+
+

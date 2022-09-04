@@ -1,61 +1,74 @@
 const express =require('express');
 const router = express.Router();
-const { Producto , verifBodyProducto } = require('../controllers/productosMongo');
+const { saveProd, getAllProds, getProdById, getProdsBy, updateProd, deleteProdById, verifBodyProducto } = require('../controllers/productos');
 const { generaId } = require('../controllers/varios');
-const { validarLogin } = require('../services/auth');
+const { validarLogin, validaPerfil } = require('../controllers/auth');
 const {logger, loggeoPeticiones} = require('../services/logger');
 
 
-const validaPerfil=(req, resp, next)=>{
-    if (req.user.admin){
-        next()
-    }else{
-        resp.status(401).send({
-            message: 'No tiene permisos para acceder al recurso'
-        })
-    }
-}
+// const validaPerfil=(req, resp, next)=>{
+    // if (req.user.admin){
+        // next()
+    // }else{
+        // resp.status(401).send({
+            // message: 'No tiene permisos para acceder al recurso'
+        // })
+    // }
+// }
 
-router.get('/', loggeoPeticiones, validarLogin, async (request, response)=>{
-    const productos= {productos: await Producto.getAll()};
+router.get('/', loggeoPeticiones, async (request, response)=>{
+    const productos= {productos: await getAllProds()};
     response.json(productos)
-    // response.render('productos', productos)
 });
 
-router.get('/:id', loggeoPeticiones, validarLogin,  async (request, response)=>{
+router.get('/:id', loggeoPeticiones, async (request, response)=>{
     const id = request.params.id;
-    const producto= await Producto.getById(id)
-    if (producto!=null){
-        response.json(producto)
+    const prod= await getProdById(id)
+    if (prod!=null){
+        response.json(prod)
     }else{
         response.status(404).json({ message: 'producto no encontrado', id: id})
+    }
+});
+
+router.get('/categoria/:categoria', loggeoPeticiones, async (request, response)=>{
+    const query = {categoria: request.params.categoria};
+    const prods= await getProdsBy(query)
+    if (prods.length>0){
+        response.json(prods)
+    }else{
+        response.status(404).json({ message: 'No se encontraron productos para la categoria', query})
     }
 });
 
 router.post('/',  loggeoPeticiones, validarLogin, validaPerfil, verifBodyProducto, async (request, response)=>{
     const idAsignado= generaId();
     const body= request.body;
-    const item= {
-        id: idAsignado,
-        timestamp: Date.now(),
-        nombre: body.nombre,
-        descripcion: body.descripcion,
-        codigo: idAsignado,
-        foto: body.foto,
-        precio: body.precio,
-        stock: body.stock
+    const prod= await getProdsBy({nombre: body.nombre})
+    if (prod.length==0){
+        const item= {
+            codigo: idAsignado,
+            nombre: body.nombre,
+            descripcion: body.descripcion,
+            categoria: body.categoria,
+            fotos: [body.foto],
+            precio: parseFloat(body.precio),
+            stock: (body.stock? parseInt(body.stock): 0)
+        }
+        saveProd(item);
+        response.status(201).json({message: 'Se dio de alta el producto', producto: item});
+    }else{
+        response.status(401).json({message: 'Ya existe otro producto con ese nombre'});
     }
-    Producto.save(item);
-    response.json({message: 'Se dio de alta el producto', producto: item});
 });
 
-router.delete('/:id', validarLogin, validaPerfil, async (request, response)=>{
+router.delete('/:id', loggeoPeticiones, validarLogin, validaPerfil, async (request, response)=>{
     const id = request.params.id;
-    let producto= await Producto.getById(id);
+    let producto= await getProdById(id);
     if (producto!=null) {
-        const prods=await Producto.deleteById(id);
+        const prods=await deleteProdById(id);
         response.json({
-            msg: 'Producto Eliminado',
+            message:'Producto Eliminado',
             productos: prods
         })
     }else{
@@ -63,17 +76,28 @@ router.delete('/:id', validarLogin, validaPerfil, async (request, response)=>{
     }
 }); 
 
-router.put('/:id', validarLogin, validaPerfil, async (request, response)=>{
+router.put('/:id', loggeoPeticiones, validarLogin, validaPerfil, async (request, response)=>{
     const id = request.params.id;
     body = request.body;
     const itemNewData= body
-    let producto= await Producto.getById(id);
-    if (producto != null){
-        Object.assign(producto, itemNewData);
-        Producto.updateItem(producto);
-        response.json({message: 'Producto actualizado', producto: producto});
-    }else{
+    let producto= await getProdById(id);
+    if (producto == null){
         response.status(404).json({message: 'producto no encontrado', id: id});
+    }else{
+        if(producto.nombre!=body.nombre){
+            const prod= await getProdsBy({nombre: body.nombre})
+            if (prod.length!=0){
+                response.status(401).json({message: 'Ya existe otro producto con ese nombre'});
+            }else{
+                Object.assign(producto, itemNewData);
+                updateProd(producto);
+                response.json({message: 'Producto actualizado', producto: producto});
+            }
+        }else{
+            Object.assign(producto, itemNewData);
+            updateProd(producto);
+            response.json({message: 'Producto actualizado', producto: producto});
+        }
     }
 }); 
 
