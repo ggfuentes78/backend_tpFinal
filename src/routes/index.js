@@ -12,9 +12,6 @@ const validarLogin = require('../controllers/auth').validarLogin;
 const {logger, loggeoPeticiones} = require('../services/logger')
 
 
-// router.get('/', validarLogin, (request, response)=>{
-    // response.render('productos')
-// })
 
 router.use('/productos', routerProductos);
 router.use('/carrito', routerCarrito);

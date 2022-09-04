@@ -33,15 +33,6 @@ const verifBodyProducto = async (request , response, next)=>{
     next();
 };
 
-// const save=async(item)=>{
-    // return await productosDao.guardarProducto(item);
-// };
-
-// const updateItem=async(producto)=>{
-// 
-// }
-
-
 
 const saveProd=async (item)=>{ //Recibe un objeto y lo guarda en BD
     try{

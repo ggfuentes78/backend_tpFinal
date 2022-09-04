@@ -127,11 +127,6 @@ class Pedido{
 
 
     }
-    // static async deleteAll(){ // Elimina todos los pedidos
-        // this.pedidos.length=0;
-        // const pedidosStringified = JSON.stringify(this.carritos, null, '\t');
-        // await grabarDatos(ruta, carritosStringified)
-    // };
 };
 
 const pedido = new Pedido() 

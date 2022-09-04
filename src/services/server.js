@@ -16,23 +16,10 @@ const YAML= require('yamljs');
 const swaggerUi = require('swagger-ui-express');
 
 
-// const Grid = require('gridfs-stream');
-// const mongoose = require('mongoose')
-
-// let gfs;
 
 initMongoDB
 const aplicacion = express();
 
-// const puerto = config.PORT;
-
-
-// const conn = mongoose.connection;
-// conn.once("open", function(){
-    // gfs = Grid(conn.db, mongoose.mongo);
-    // console.log('gfsssss', gfs)
-    // gfs.collection("images");
-// })
 
 //Configuracion de Express-Session
 aplicacion.use(

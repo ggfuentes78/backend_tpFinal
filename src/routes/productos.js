@@ -6,15 +6,6 @@ const { validarLogin, validaPerfil } = require('../controllers/auth');
 const {logger, loggeoPeticiones} = require('../services/logger');
 
 
-// const validaPerfil=(req, resp, next)=>{
-    // if (req.user.admin){
-        // next()
-    // }else{
-        // resp.status(401).send({
-            // message: 'No tiene permisos para acceder al recurso'
-        // })
-    // }
-// }
 
 router.get('/', loggeoPeticiones, async (request, response)=>{
     const productos= {productos: await getAllProds()};

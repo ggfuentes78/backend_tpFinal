@@ -1,6 +1,5 @@
 const mongoose= require("mongoose");
 const { coleccionProductos } = require("../productos/productos");
-// const { coleccionUser } = require("../users/users")
 
 const coleccionCarritos = 'carritos'
 

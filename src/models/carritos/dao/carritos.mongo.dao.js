@@ -90,8 +90,6 @@ class DaoCarritos{
     };
 
     async deleteProdById(carrito, idProd) { //Elimina un producto de un carrito
-        // await ModeloCarritos.findOneAndDelete({'productos._id': idProd});
-        // const idxProd= this.getIndex(carrito, idProd);
         const idxProd = carrito.productos.map(p=>p._id.valueOf()).indexOf(idProd)
         if (idxProd>-1){
             carrito.productos.splice(idxProd, 1);

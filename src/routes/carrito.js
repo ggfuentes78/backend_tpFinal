@@ -12,19 +12,6 @@ const msg404Carrito= 'Carrito no encontrado'
 const msg404Producto= 'Producto no encontrado'
 
 
-// router.get('/:id/detalle', validarLogin, async(request, response)=>{ //Esta ruta es solo para el Front hace lo mismo que /:id pero renderiza el resultado de la consulta
-    // const id = request.params.id;
-    // const carrito = await getCartById(id);
-    // if (carrito!= null){
-        // response.render('carrito', carrito)
-    // }else{
-        // logger.info(`Carrito id: ${id} - ${msg404Carrito}`)
-        // response.status(404).json({
-            // error : msg404Carrito 
-        // })
-    // }
-// });
-
 router.get('/', loggeoPeticiones, validarLogin, async (req, res)=>{
     const cartId= req.user.carrito;
     const carrito= await getCartById(cartId);

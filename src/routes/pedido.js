@@ -79,59 +79,6 @@ router.post('/', loggeoPeticiones, validarLogin,async (request, response)=>{ // 
     }
 });
 
-// router.delete('/:id', validarLogin, async(request, response)=>{ //Borra por carrito segun id (hace falta controlar/reponer stock)?
-    // const id = request.params.id;
-    // const carrito= await Carrito.getById(id)
-    // if(carrito!=null){
-        // const borrarCarrito = await Carrito.deleteById(id);
-        // response.json(borrarCarrito) //Devuelve array de carritos creados
-    // }else{
-        // response.status(404).json({error : msg404Carrito})
-    // }
-// }); 
-// 
-// router.post('/:id/productos', validarLogin, async(request, response)=>{
-    // const idCarrito = request.params.id;
-    // const carrito = await Carrito.getById(idCarrito);
-    // if (carrito!= null){
-        // const body= request.body;
-        // let producto= await Producto.getById(body.idProd);
-        // if (producto!=null){
-            // const idxProd = Carrito.getIndex(carrito, producto._id)
-            // if (idxProd == -1){
-                // carrito.productos.push(producto);
-                // await Carrito.updateItem(carrito);
-                // logger.info(`Se agrego el producto ${bosy.idProd} al carrito ${idCarrito}`)
-                // response.json(carrito);
-            // }else{
-            //    response.status(400).json({message:'Producto ya existe en Carrito'})
-            // }
-        // }else{
-            // response.status(404).json({error: msg404Producto})
-        // }
-    // }else{
-        // response.status(404).json({error: msg404Carrito})
-    // }
-// 
-// });
-// 
-// router.delete('/:id/productos/:id_prod', validarLogin, async(request, response)=>{
-    // const idCarrito = request.params.id;
-    // const idProd = request.params.id_prod;
-    // const carrito = await Carrito.getById(idCarrito);
-    // if (carrito!= null){
-        // const updtCarrito = await Carrito.deleteProdById(carrito, idProd);
-            // if (updtCarrito==null){
-                // response.status(404).json({error: msg404Producto})
-            // }else{
-                // Carrito.updateItem(carrito);
-                // logger.info(`Se elimino el producto ${idProd} de Carrito ${idCarrito}`)
-                // response.json(carrito);
-            // }
-    // }else{
-        // response.status(404).json({error: msg404Carrito})
-    // }
-// });
 
 
 module.exports = router;

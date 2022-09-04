@@ -61,12 +61,6 @@ const getOrderById=async(id)=>{ //Recibe en id y devuelve el objeto con ese id o
     }
 };
 
-// const getRandom=()=>{
-    // const min = 0; 
-    // const max = this.pedidos.length;
-    // const idx= randomIndex(min, max);
-    // return (this.pedidos[idx]);
-// }
 
 const getAllOrders=async()=>{ //Devuelve un array con todos los pedidos en BD 
     try{

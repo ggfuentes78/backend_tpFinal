@@ -11,11 +11,6 @@ const connectionString = config.MONGO_ATLAS_SRV || 'mongodb://localhost:27017/gf
 
 const initMongoDB = async ()=>{
     try{
-        // const connectionParams = {
-            // useNewUrlParser: true,
-            // useCreateIndex: true,
-            // useUnifiedTopology: true,
-        // };
         logger.info('Conectando a Base de Datos...');
         await mongoose.connect(connectionString);
         logger.info('Conexion a Base de Datos OK!')

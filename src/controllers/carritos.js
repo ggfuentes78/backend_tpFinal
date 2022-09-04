@@ -38,10 +38,6 @@ const updateCart=async(carrito)=>{
     }   
 };
 
-//  const getIndex=(carrito, idProd){
-// const prodIndex = carrito.productos.findIndex(e=>e._id==idProd);
-// return prodIndex;
-// };
 
 const getCartById=async(id)=>{ //Recibe en id y devuelve el objeto con ese id o null si no est
     try{
@@ -56,12 +52,6 @@ const getCartById=async(id)=>{ //Recibe en id y devuelve el objeto con ese id o 
     }
 };
     
-// const getRandom=()=>{
-    // const min = 0; 
-    // const max = this.carritos.length;
-    // const idx= randomIndex(min, max);
-    // return (this.carritos[idx]);
-// }
 
 const getAllCarts=async()=>{ //Devuelve un array con los objetos presentes en el archivo 
     try{
